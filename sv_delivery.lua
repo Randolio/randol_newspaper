@@ -28,7 +28,7 @@ lib.callback.register('randol_paperboy:server:beginWork', function(source)
     if count > 0 then
         ox_inventory:RemoveItem(src, 'WEAPON_ACIDPACKAGE', count)
     end
-
+    
     local index = math.random(#Server.Areas)
     local generatedLocs = Server.Areas[index].Locations
 
@@ -41,6 +41,7 @@ lib.callback.register('randol_paperboy:server:beginWork', function(source)
 
     local netid = createBicycle(src)
     workers[src].entity = NetworkGetEntityFromNetworkId(netid)
+    Wait(500) -- This might be pointless but on a rare occasion it will only give 1 newspaper item and scuff out? idk.
     ox_inventory:AddItem(src, 'WEAPON_ACIDPACKAGE', #generatedLocs)
 
     return workers[src], netid
