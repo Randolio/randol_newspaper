@@ -22,6 +22,8 @@ lib.callback.register('randol_paperboy:server:beginWork', function(source)
     local src = source
     local player = GetPlayer(src)
 
+    TriggerClientEvent('ox_inventory:disarm', src, true)
+
     local count = ox_inventory:GetItemCount(src, 'WEAPON_ACIDPACKAGE') -- Incase they disconnected and still have some. I wanna reset.
     if count > 0 then
         ox_inventory:RemoveItem(src, 'WEAPON_ACIDPACKAGE', count)
@@ -89,6 +91,8 @@ lib.callback.register('randol_paperboy:server:clockOut', function(source)
     end
 
     if DoesEntityExist(workers[src].entity) then DeleteEntity(workers[src].entity) end
+
+    TriggerClientEvent('ox_inventory:disarm', src, true)
 
     local count = ox_inventory:GetItemCount(src, 'WEAPON_ACIDPACKAGE')
     
