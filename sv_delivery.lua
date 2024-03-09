@@ -30,7 +30,11 @@ lib.callback.register('randol_paperboy:server:beginWork', function(source)
     end
     
     local index = math.random(#Server.Areas)
-    local generatedLocs = Server.Areas[index].Locations
+    local generatedLocs = {}
+
+    for i = 1, #Server.Areas[index].Locations do
+        generatedLocs[#generatedLocs+1] = Server.Areas[index].Locations[i]
+    end
 
     workers[src] = {
         locations = generatedLocs,
@@ -38,11 +42,10 @@ lib.callback.register('randol_paperboy:server:beginWork', function(source)
         totalPay = 0,
         entity = 0,
     }
-    
+
     local amount = #workers[src].locations
     local netid = createBicycle(src)
     workers[src].entity = NetworkGetEntityFromNetworkId(netid)
-
     ox_inventory:AddItem(src, 'WEAPON_ACIDPACKAGE', amount)
 
     return workers[src], netid
