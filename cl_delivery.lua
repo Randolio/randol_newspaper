@@ -25,7 +25,7 @@ local function resetJob()
             end
         end
     end
-    if next(myData) and myData.blips and next(myData.blips) then
+    if myData?.blips then
         for k, _ in pairs(myData.blips) do
             if DoesBlipExist(myData.blips[k]) then
                 RemoveBlip(myData.blips[k])
@@ -41,7 +41,7 @@ local function validateDrop(point)
     local success, num = lib.callback.await('randol_paperboy:server:validateDrop', 1500, point.coords)
     if success then
         point:remove()
-        if DoesBlipExist(myData.blips[point.blip]) then
+        if DoesBlipExist(myData.blips?[point.blip]) then
             RemoveBlip(myData.blips[point.blip])
             myData.blips[point.blip] = nil
         end
