@@ -3,6 +3,7 @@ local startPed, pedInteract
 local delay, clockedIn = false
 local myData = {}
 local workZones = {}
+local blipStore = {}
 
 if Config.EnableBlip then
     local NEWS_BLIP = AddBlipForCoord(Config.PedCoords.xyz)
@@ -25,11 +26,11 @@ local function resetJob()
             end
         end
     end
-    if myData?.blips then
-        for k, _ in pairs(myData.blips) do
-            if DoesBlipExist(myData.blips[k]) then
-                RemoveBlip(myData.blips[k])
-                myData.blips[k] = nil
+    if next(blipStore) then
+        for k, _ in pairs(blipStore) do
+            if DoesBlipExist(blipStore[k]) then
+                RemoveBlip(blipStore[k])
+                blipStore[k] = nil
             end
         end
     end
@@ -41,9 +42,11 @@ local function validateDrop(point)
     local success, num = lib.callback.await('randol_paperboy:server:validateDrop', 1500, point.coords)
     if success then
         point:remove()
-        if DoesBlipExist(myData.blips?[point.blip]) then
-            RemoveBlip(myData.blips[point.blip])
-            myData.blips[point.blip] = nil
+        if next(blipStore) then
+            if DoesBlipExist(blipStore[point.blip]) then
+                RemoveBlip(blipStore[point.blip])
+                blipStore[point.blip] = nil
+            end
         end
         if num > 0 then
             DoNotification(('Newspaper delivered. %s remaining'):format(num))
@@ -63,8 +66,6 @@ local function createPaperRoute(netid)
     end, 'Could not load entity in time.', 5000)
 
     handleVehicleKeys(vehicle)
-
-    myData.blips = {}
     
     for k,v in pairs(myData.locations) do
         local zone = lib.points.new({ 
@@ -82,15 +83,15 @@ local function createPaperRoute(netid)
         })
         workZones[#workZones+1] = zone
         
-        myData.blips[k] = AddBlipForCoord(v.x, v.y, v.z)
-        SetBlipSprite(myData.blips[k], 40)
-        SetBlipDisplay(myData.blips[k], 4)
-        SetBlipScale(myData.blips[k], 0.65)
-        SetBlipAsShortRange(myData.blips[k], true)
-        SetBlipColour(myData.blips[k], 61)
+        blipStore[k] = AddBlipForCoord(v.x, v.y, v.z)
+        SetBlipSprite(blipStore[k], 40)
+        SetBlipDisplay(blipStore[k], 4)
+        SetBlipScale(blipStore[k], 0.65)
+        SetBlipAsShortRange(blipStore[k], true)
+        SetBlipColour(blipStore[k], 61)
         BeginTextCommandSetBlipName("STRING")
         AddTextComponentSubstringPlayerName('Delivery')
-        EndTextCommandSetBlipName(myData.blips[k])
+        EndTextCommandSetBlipName(blipStore[k])
     end
     clockedIn = true
     DoNotification('Your delivery locations have been assigned.', 'success')
