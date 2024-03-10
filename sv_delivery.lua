@@ -39,6 +39,7 @@ lib.callback.register('randol_paperboy:server:beginWork', function(source)
     workers[src] = {
         locations = generatedLocs,
         payout = Server.Areas[index].Payout,
+        bonusPay = Server.Areas[index].bonusPay or 0,
         totalPay = 0,
         entity = 0,
     }
@@ -51,11 +52,10 @@ lib.callback.register('randol_paperboy:server:beginWork', function(source)
     return workers[src], netid
 end)
 
-lib.callback.register('randol_paperboy:server:validateDrop', function(source, location)
+lib.callback.register('randol_paperboy:server:validateDrop', function(source, location, netid)
     if not workers[source] then return false end
 
     local src = source
-    local player = GetPlayer(src)
     local pos = GetEntityCoords(GetPlayerPed(src))
     local isValid = false
 
@@ -70,8 +70,14 @@ lib.callback.register('randol_paperboy:server:validateDrop', function(source, lo
     end
 
     if not isValid then return false end
+    local skillLevel = exports.OT_skills:getSkill(source, 'newspaper')
+    local bonusPay = (workers[src].bonusPay * skillLevel.level) or 0
+    local payout = math.random(workers[src].payout.min, workers[src].payout.max) + bonusPay
 
-    local payout = math.random(workers[src].payout.min, workers[src].payout.max)
+    if NetworkGetNetworkIdFromEntity(GetVehiclePedIsIn(GetPlayerPed(source))) ~= netid then
+        payout = 1
+        DoNotification(src, ('This is the wrong vehicle. Pay reduced'), 'error')
+    end
 
     workers[src].totalPay += payout
 
@@ -93,6 +99,7 @@ lib.callback.register('randol_paperboy:server:clockOut', function(source)
     if workers[src].totalPay > 0 then
         AddMoney(player, 'cash', workers[src].totalPay)
         DoNotification(src, ('You received $%s for completing your deliveries.'):format(workers[src].totalPay), 'success')
+        exports.OT_skills:addXP(src, 'newspaper', math.random(10))
     end
 
     if DoesEntityExist(workers[src].entity) then DeleteEntity(workers[src].entity) end
@@ -130,3 +137,22 @@ end, {
         '^newdrop$'
     }
 })
+
+AddEventHandler("onResourceStop", function(resource)
+    if resource == GetCurrentResourceName() then
+		exports.ox_inventory:removeHooks(hookId)
+    end
+end)
+
+local data = {
+    name = 'newspaper',
+    label = 'Newspaper',
+    description = 'Showcase your newspaper throwing skills',
+    multiplier = 1.2,
+    maxlevel = 10,
+    maxReward = 50,
+    maxDeduction = 50,
+    icon = 'newspaper',
+    iconColor = '#29c785'
+}
+exports.OT_skills:registerSkill(data)

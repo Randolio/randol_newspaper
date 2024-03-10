@@ -1,7 +1,8 @@
 return {
     Areas = {
         { -- Mirror Park
-            Payout = {min = 105, max = 135},
+            bonusPay = 20,
+            Payout = {min = 205, max = 235},
             Locations = {
                 vec3(1223.03, -696.92, 60.8),
                 vec3(1229.6, -725.48, 60.95),
@@ -18,7 +19,8 @@ return {
             },
         },
         { -- Little Seoul
-            Payout = {min = 105, max = 135},
+            bonusPay = 20,
+            Payout = {min = 205, max = 235},
             Locations = {
                 vec3(-668.41, -971.42, 22.35),
                 vec3(-741.53, -982.28, 17.44),
@@ -28,7 +30,8 @@ return {
             },
         },
         { -- Grove St
-            Payout = {min = 105, max = 135},
+            bonusPay = 20,
+            Payout = {min = 205, max = 235},
             Locations = {
                 vec3(-20.61, -1858.66, 25.41),
                 vec3(46.04, -1864.3, 23.28),
@@ -40,7 +43,8 @@ return {
             },
         },
         { -- Beach Area
-            Payout = {min = 105, max = 135},
+            bonusPay = 25,
+            Payout = {min = 225, max = 255},
             Locations = {
                 vec3(-1246.52, -1182.79, 7.66),
                 vec3(-1285.27, -1253.32, 4.52),

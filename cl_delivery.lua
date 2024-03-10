@@ -1,9 +1,10 @@
 local Config = lib.require('shared')
 local startPed, pedInteract
-local delay, clockedIn = false
+local delay, clockedIn = false, false
 local myData = {}
 local workZones = {}
 local blipStore = {}
+local netid
 
 if Config.EnableBlip then
     local NEWS_BLIP = AddBlipForCoord(Config.PedCoords.xyz)
@@ -18,7 +19,6 @@ if Config.EnableBlip then
 end
 
 local function resetJob()
-    clockedIn = false
     if next(workZones) then
         for i = 1, #workZones do
             if workZones[i] then
@@ -39,7 +39,7 @@ local function resetJob()
 end
 
 local function validateDrop(point)
-    local success, num = lib.callback.await('randol_paperboy:server:validateDrop', 1500, point.coords)
+    local success, num = lib.callback.await('randol_paperboy:server:validateDrop', 1500, point.coords, netid)
     if success then
         point:remove()
         if next(blipStore) then
@@ -124,7 +124,7 @@ local function spawnPed()
                     return not clockedIn 
                 end,
                 action = function()
-                    if IsAnyVehicleNearPoint(Config.BikeSpawn.x, Config.BikeSpawn.y, Config.BikeSpawn.z, 5.0) then 
+                    if IsAnyVehicleNearPoint(Config.BikeSpawn.x, Config.BikeSpawn.y, Config.BikeSpawn.z, 5.0) then
                         DoNotification('A bike is blocking the spawn.', 'error') 
                         return 
                     end
@@ -137,13 +137,17 @@ local function spawnPed()
             { 
                 icon = 'fa-solid fa-clipboard-check',
                 label = 'Finish Delivery',
+                canInteract = function() 
+                    return clockedIn
+                end,
                 action = function()
                     local success = lib.callback.await('randol_paperboy:server:clockOut', false)
                     if not success then return end
+                    clockedIn = false
                     resetJob()
                 end,
             },
-        }, 
+        },
         distance = 1.5, 
     })
 end
