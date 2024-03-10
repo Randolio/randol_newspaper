@@ -135,7 +135,7 @@ end, {
 
 AddEventHandler("onResourceStop", function(resource)
     if resource == GetCurrentResourceName() then
-		exports.ox_inventory:removeHooks(hookId)
+        exports.ox_inventory:removeHooks(hookId)
     end
 end)
 
