@@ -70,6 +70,8 @@ lib.callback.register('randol_paperboy:server:validateDrop', function(source, lo
 
     if not isValid then return false end
 
+    local payout = math.random(workers[src].payout.min, workers[src].payout.max)
+
     if NetworkGetNetworkIdFromEntity(GetVehiclePedIsIn(GetPlayerPed(source))) ~= netid then
         payout = 1
         DoNotification(src, ('This is the wrong vehicle. Pay reduced'), 'error')
