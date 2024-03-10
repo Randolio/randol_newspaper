@@ -51,11 +51,10 @@ lib.callback.register('randol_paperboy:server:beginWork', function(source)
     return workers[src], netid
 end)
 
-lib.callback.register('randol_paperboy:server:validateDrop', function(source, location)
+lib.callback.register('randol_paperboy:server:validateDrop', function(source, location, netid)
     if not workers[source] then return false end
 
     local src = source
-    local player = GetPlayer(src)
     local pos = GetEntityCoords(GetPlayerPed(src))
     local isValid = false
 
@@ -71,7 +70,10 @@ lib.callback.register('randol_paperboy:server:validateDrop', function(source, lo
 
     if not isValid then return false end
 
-    local payout = math.random(workers[src].payout.min, workers[src].payout.max)
+    if NetworkGetNetworkIdFromEntity(GetVehiclePedIsIn(GetPlayerPed(source))) ~= netid then
+        payout = 1
+        DoNotification(src, ('This is the wrong vehicle. Pay reduced'), 'error')
+    end
 
     workers[src].totalPay += payout
 
@@ -130,3 +132,10 @@ end, {
         '^newdrop$'
     }
 })
+
+AddEventHandler("onResourceStop", function(resource)
+    if resource == GetCurrentResourceName() then
+		exports.ox_inventory:removeHooks(hookId)
+    end
+end)
+
