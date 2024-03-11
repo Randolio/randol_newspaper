@@ -21,7 +21,7 @@ If you miss a target and run out of newspapers, there is no second chances. You'
     throwable = true,
 },
 ```
-* Image can be found in ox_inventory by default: https://github.com/overextended/ox_inventory/blob/main/web/images/WEAPON_ACIDPACKAGE.PNG
+* Image can be found in the [image] folder. Place this in ox_inventory\web\images.
 
 * [ox_lib](https://github.com/overextended/ox_lib/releases/)
 * [ox_inventory](https://github.com/overextended/ox_inventory/releases/)
