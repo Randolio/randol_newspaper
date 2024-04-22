@@ -114,7 +114,8 @@ local function spawnPed()
 
     lib.requestAnimDict('timetable@ron@ig_3_couch')
     TaskPlayAnim(startPed, 'timetable@ron@ig_3_couch', 'base', 3.0, 3.0, -1, 01, 0, false, false, false)
-
+    RemoveAnimDict('timetable@ron@ig_3_couch')
+    
     exports['qb-target']:AddTargetEntity(startPed, { 
         options = {
             { 
