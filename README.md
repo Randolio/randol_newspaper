@@ -32,3 +32,5 @@ If you miss a target and run out of newspapers, there is no second chances. You'
 * [showcase](https://streamable.com/y7w78q)
 
 Many thanks to the overextended team for making this script possible. Go donate, star and download their resources. https://github.com/overextended
+
+**You have permission to use this in your server and edit for your personal needs but are not allowed to redistribute.**
