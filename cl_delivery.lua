@@ -5,6 +5,7 @@ local myData = {}
 local workZones = {}
 local blipStore = {}
 local netid
+local oxtarget = GetResourceState('ox_target') == 'started'
 
 if Config.EnableBlip then
     local NEWS_BLIP = AddBlipForCoord(Config.PedCoords.xyz)
@@ -16,6 +17,22 @@ if Config.EnableBlip then
     BeginTextCommandSetBlipName("STRING")
     AddTextComponentSubstringPlayerName('Newspaper Delivery')
     EndTextCommandSetBlipName(NEWS_BLIP)
+end
+
+local function addTargetEntity(entity, options, distance)
+    if oxtarget then
+        for _, option in ipairs(options) do
+            option.distance = distance
+            option.onSelect = option.action
+            option.action = nil
+        end
+        exports.ox_target:addLocalEntity(entity, options)
+    else
+        exports['qb-target']:AddTargetEntity(entity, {
+            options = options,
+            distance = distance
+        })
+    end
 end
 
 local function resetJob()
@@ -115,47 +132,48 @@ local function spawnPed()
     lib.requestAnimDict('timetable@ron@ig_3_couch')
     TaskPlayAnim(startPed, 'timetable@ron@ig_3_couch', 'base', 3.0, 3.0, -1, 01, 0, false, false, false)
     RemoveAnimDict('timetable@ron@ig_3_couch')
-    
-    exports['qb-target']:AddTargetEntity(startPed, { 
-        options = {
-            { 
-                icon = 'fa-solid fa-newspaper',
-                label = 'Start Work',
-                canInteract = function() 
-                    return not clockedIn 
-                end,
-                action = function()
-                    if IsAnyVehicleNearPoint(Config.BikeSpawn.x, Config.BikeSpawn.y, Config.BikeSpawn.z, 5.0) then
-                        DoNotification('A bike is blocking the spawn.', 'error') 
-                        return 
-                    end
-                    myData, netid = lib.callback.await('randol_paperboy:server:beginWork', false)
-                    if myData and netid then
-                        createPaperRoute(netid)
-                    end
-                end,
-            },
-            { 
-                icon = 'fa-solid fa-clipboard-check',
-                label = 'Finish Delivery',
-                canInteract = function() 
-                    return clockedIn
-                end,
-                action = function()
-                    local success = lib.callback.await('randol_paperboy:server:clockOut', false)
-                    if not success then return end
-                    clockedIn = false
-                    resetJob()
-                end,
-            },
+
+    addTargetEntity(startPed, {
+        { 
+            icon = 'fa-solid fa-newspaper',
+            label = 'Start Work',
+            canInteract = function() 
+                return not clockedIn 
+            end,
+            action = function()
+                if IsAnyVehicleNearPoint(Config.BikeSpawn.x, Config.BikeSpawn.y, Config.BikeSpawn.z, 5.0) then
+                    DoNotification('A bike is blocking the spawn.', 'error') 
+                    return 
+                end
+                myData, netid = lib.callback.await('randol_paperboy:server:beginWork', false)
+                if myData and netid then
+                    createPaperRoute(netid)
+                end
+            end,
         },
-        distance = 1.5, 
-    })
+        { 
+            icon = 'fa-solid fa-clipboard-check',
+            label = 'Finish Delivery',
+            canInteract = function() 
+                return clockedIn
+            end,
+            action = function()
+                local success = lib.callback.await('randol_paperboy:server:clockOut', false)
+                if not success then return end
+                clockedIn = false
+                resetJob()
+            end,
+        },
+    }, 1.5)
 end
 
 local function yeetPed()
     if DoesEntityExist(startPed) then
-        exports['qb-target']:RemoveTargetEntity(startPed, {'Start Work', 'Finish Delivery'})
+        if oxtarget then
+            exports.ox_target:removeLocalEntity(startPed, {'Start Work', 'Finish Delivery'})
+        else
+            exports['qb-target']:RemoveTargetEntity(startPed, {'Start Work', 'Finish Delivery'})
+        end
         DeleteEntity(startPed)
         startPed = nil
     end
