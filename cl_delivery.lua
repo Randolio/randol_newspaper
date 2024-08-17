@@ -5,7 +5,6 @@ local myData = {}
 local workZones = {}
 local blipStore = {}
 local netid
-local oxtarget = GetResourceState('ox_target') == 'started'
 
 if Config.EnableBlip then
     local NEWS_BLIP = AddBlipForCoord(Config.PedCoords.xyz)
@@ -20,7 +19,7 @@ if Config.EnableBlip then
 end
 
 local function addTargetEntity(entity, options, distance)
-    if oxtarget then
+    if GetResourceState('ox_target') == 'started' then
         for _, option in ipairs(options) do
             option.distance = distance
             option.onSelect = option.action
@@ -169,7 +168,7 @@ end
 
 local function yeetPed()
     if DoesEntityExist(startPed) then
-        if oxtarget then
+        if GetResourceState('ox_target') == 'started' then
             exports.ox_target:removeLocalEntity(startPed, {'Start Work', 'Finish Delivery'})
         else
             exports['qb-target']:RemoveTargetEntity(startPed, {'Start Work', 'Finish Delivery'})
